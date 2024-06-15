@@ -1,5 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('node:path');
+const twitch = require('./twitch.js');
+
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -8,19 +10,30 @@ if (require('electron-squirrel-startup')) {
 
 const createWindow = () => {
   // Create the browser window.
+  
+  let _twitch;
+
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
+    show: false
   });
 
+  
   mainWindow.setMenu(null);
-
+  
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  
+  mainWindow.webContents.on('did-finish-load', function () {
+    mainWindow.show();
+    _twitch = twitch(mainWindow.webContents);
+});
 
+  
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 };
